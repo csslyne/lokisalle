@@ -16,7 +16,7 @@ Fait :
   
 A faire :
 - Envoie d'email pour récupération d'un mot de passe perdu. (A terminer)
-- Gestion du panier.(A terminer)
+- Gestion du panier. (A terminer)
 - Page de recherche de produit. 
 - Page de réservation des salles. 
 - Envoi de newsletter.
