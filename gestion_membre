@@ -1,0 +1,132 @@
+<?php
+require_once("../inc/init.inc.php");
+//Je restreins l'accès au personne connecté avec le statut administrateur
+if(!connexionAdmin())
+{
+  header("location:../connexion.php");
+  exit();
+}
+
+//Je gére la suppression des produits dans la Bdd.
+if(isset($_GET['action']) && $_GET['action'] == "suppression")
+{
+  $resultat = executeRequete("SELECT * FROM membre WHERE id_membre='$_GET[id_membre]'");
+  $produit_a_supprimer = $resultat->fetch_assoc();
+  executeRequete("DELETE FROM membre WHERE id_membre=$_GET[id_membre]");
+   $contenu .= '<div class="validation">Suppression du membre : ' . $_GET['id_membre'] .'</div>';
+  $_GET['action'] = 'affichage';
+}
+
+
+//Bouton Ajouter
+$contenu .= '<a href="?action=ajout">Ajouter d\'un membre administrateur</a><br />';
+//Bouton Affichage
+$contenu .= '<a href="?action=affichage">Affichage des membres</a><br /><br/><hr /><br />';
+
+
+//Je gére l'enregistrement des produits dans la bdd
+if(!empty($_POST))
+{
+	$hash_mdp = password_hash($_POST['mdp'], PASSWORD_BCRYPT);
+  foreach($_POST as $indice => $valeur)
+  {
+    $_POST[$indice] = htmlentities(addSlashes($valeur));
+  }
+	executeRequete("REPLACE INTO membre(id_membre, pseudo, mdp, nom, prenom, email, sexe, ville, cp, adresse, statut) VALUES ('$_POST[id_membre]','$_POST[pseudo]', '$hash_mdp', '$_POST[nom]', '$_POST[prenom]','$_POST[email]', '$_POST[sexe]','$_POST[ville]', '$_POST[cp]','$_POST[adresse]','$_POST[statut]')");	
+}
+
+if(isset($_GET['action']) && $_GET['action'] == "affichage" )
+{
+    $resultat = executeRequete("SELECT * FROM membre");
+    $contenu .= '<h2>Affichage des membre<h2>';
+    $contenu .= 'Nombre de membre(s) : ' . $resultat->num_rows;
+    $contenu .= '<table border="2" cellpadding="5"><tr>';
+
+	
+	while($colonne = $resultat->fetch_field())
+    {
+      $contenu .= '<th>' .$colonne->name . '</th>';
+    }
+		
+    $contenu .= '<th>Modification</th>';
+    $contenu .= '<th>Suppression</th>';
+
+    $contenu .= '</tr>';
+
+    while($ligne = $resultat->fetch_assoc())
+    {
+      $contenu .= '<tr>';
+      foreach($ligne as $indice => $information)
+      {
+        $contenu .= '<td>'.$information.'</td>';
+      }
+			
+      $contenu .= '<td><a href="?action=modification&id_membre='.$ligne['id_membre'] .'"><img src="../inc/img/modif.png" /></a></td>';
+      $contenu .= '<td><a href="?action=suppression&id_membre='.$ligne['id_membre'] .'"><img src="../inc/img/supp.png" /></a></td>';
+
+      $contenu .= '</tr>';
+    }
+    $contenu .= '</table><br /><hr /><br />';
+}
+
+//J'ajoute le header et le menu du site.
+require_once("../inc/haut.inc.php");
+require_once("../inc/menu.inc.php");
+//J'ajoute la partie ou est stocké le contenu du site.
+echo $contenu;
+
+//Formulaire pour ajouter une salle.
+//Dans les "value" je récupére les données des produits, pour les auto remplir dans le formulaire quand on souhait modifier le produit. 
+
+if(isset($_GET['action']) && ($_GET['action'] == 'ajout' || $_GET['action'] == 'modification'))
+{
+
+    if(isset($_GET['id_membre']))
+    {
+      $resultat = executeRequete("SELECT * FROM membre WHERE id_membre=$_GET[id_membre]");
+      $membre_actuel = $resultat->fetch_assoc();
+    }
+
+
+echo '
+<form method="post" action="">
+
+<input type="hidden" id="id_membre" name="id_membre" value="';if(isset($membre_actuel['id_membre'])) echo $membre_actuel ['id_membre']; echo ' "/>
+
+<label for="pseudo">Pseudo* :</label><br />
+<input type="text" name="pseudo" id="pseudo" value="';if(isset($membre_actuel['pseudo'])) echo $membre_actuel ['pseudo']; echo ' " /><br /><br />
+
+<label for="mdp">Mot de passe* :</label><br />
+<input type="password" name="mdp" id="mdp" value="';if(isset($membre_actuel['mdp'])) echo $membre_actuel['mdp']; echo ' " /><br /><br />
+
+<label for="nom">Nom* :</label><br />
+<input type="text" name="nom" id="nom" value="';if(isset($membre_actuel['nom'])) echo $membre_actuel ['nom']; echo ' " /><br /><br />
+
+<label for="prenom">Prénom* :</label><br />
+<input type="text" name="prenom" id="prenom" value="';if(isset($membre_actuel['prenom'])) echo $membre_actuel ['prenom']; echo ' " /><br /><br />
+
+<label for="email">Email* :</label><br />
+<input type="email" name="email" id="email" value="';if(isset($membre_actuel['email'])) echo $membre_actuel ['email']; echo ' " /><br /><br />
+
+<label for="sexe">Sexe* :</label><br />
+<input type="radio" name="sexe" value="m" checked ';if(isset($membre_actuel) && $membre_actuel['sexe'] == 'homme') echo 'checked'; echo '  />Homme<br />
+<input type="radio" name="sexe" value="f" ';if(isset($membre_actuel) && $membre_actuel['sexe'] == 'femme') echo 'checked'; echo '  />Femme<br /><br />
+
+<label for="ville">Ville* :</label><br />
+<input type="text" name="ville" id="ville" value="';if(isset($membre_actuel['ville'])) echo $membre_actuel ['ville']; echo ' " /><br /><br />
+
+<label for="cp">Code postal* :</label><br />
+<input type="text" name="cp" id="cp" value="';if(isset($membre_actuel['cp'])) echo $membre_actuel ['cp']; echo ' " /><br /><br />
+
+<label for="adresse">Adresse* :</label><br />
+<textarea name="adresse" id="adresse" >';if(isset($membre_actuel['adresse'])) echo $membre_actuel['adresse']; echo '</textarea><br /><br />
+
+<label for="statut">Statut* :</label><br />
+<input type="text" name="statut" id="statut" value="';if(isset($membre_actuel['statut'])) echo $membre_actuel ['statut']; echo ' " /><br /><br />
+
+<input type="submit" id="valider" name="valider" value="valider"/>
+</form>';
+}
+//J'ajoute le footer du site.
+require_once("../inc/bas.inc.php");
+?>
