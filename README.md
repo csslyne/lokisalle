@@ -6,8 +6,6 @@ Fait :
 - Création d'une page d'inscription.
 - Création d'une page profil utilisateur avec possibilité de modifier son profil. 
 - Enregistrement des données de connexion avec gestion de cookie. 
-- Envoie d'email pour récupération d'un mot de passe perdu. 
-- Gestion du panier. 
 - Création d'un espace d'administration avec 
               - Gestion des salles
               - Gestion des produits (salle avec date de location)
@@ -17,7 +15,8 @@ Fait :
               - Gestion des avis des internautes
   
 A faire :
-- Terminer la gestion du panier. 
+- Envoie d'email pour récupération d'un mot de passe perdu. (A terminer)
+- Gestion du panier.(A terminer)
 - Page de recherche de produit. 
 - Page de réservation des salles. 
 - Envoi de newsletter.
